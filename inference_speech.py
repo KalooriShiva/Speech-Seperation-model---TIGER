@@ -23,8 +23,8 @@ with torch.no_grad():
     ests_speech = model(audio[None])
 
 torchaudio.save(
-    f"test/spk1.wav", ests_speech[:,0].squeeze(0).cpu(), 16000
+    f"test/spk1.wav", ests_speech[:,0].cpu(), 16000
 )
 torchaudio.save(
-    f"test/spk2.wav", ests_speech[:,1].squeeze(0).cpu(), 16000
+    f"test/spk2.wav", ests_speech[:,1].cpu(), 16000
 )
