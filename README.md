@@ -79,6 +79,10 @@ python audio_train.py --conf_dir configs/tiger.yml
 python audio_test.py --conf_dir configs/tiger.yml
 ```
 
+### Huggingface Space
+
+https://huggingface.co/spaces/fffiloni/TIGER-audio-extraction
+
 ## 📖 Citation
 
 ```bibtex
