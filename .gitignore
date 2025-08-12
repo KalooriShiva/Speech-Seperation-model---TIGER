@@ -1,2 +1,8 @@
 *.DS_Store
 *.pyc
+*.wav
+*.mp3
+*.zip
+*.tar
+*.tar.gz
+*.log
