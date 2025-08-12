@@ -1,0 +1,57 @@
+audionet:
+  audionet_config:
+    in_channels: 256
+    num_blocks: 4
+    num_sources: 1
+    out_channels: 128
+    stride: 160
+    upsampling_depth: 4
+    win: 640
+  audionet_name: TIGER
+datamodule:
+  data_config:
+    batch_size: 1
+    dataset_path: /home/kaloori.shiva/Thesis/TIGER/Voicebank_DEMAND
+    n_src: 1
+    normalize_audio: false
+    num_workers: 4
+    persistent_workers: false
+    pin_memory: true
+    sample_rate: 16000
+    segment: 2.0
+  data_name: VoiceBankDemandDataModule
+exp:
+  exp_name: TIGER-VoiceBank
+loss:
+  train:
+    config: {}
+    loss_func: SingleSrcNegSDR
+    sdr_type: sisdr
+  val:
+    config: {}
+    loss_func: SingleSrcNegSDR
+    sdr_type: sisdr
+main_args:
+  exp_dir: /home/kaloori.shiva/Thesis/TIGER/Experiments/checkpoint/TIGER-VoiceBank
+optimizer:
+  lr: 0.001
+  optim_name: adam
+  weight_decay: 0
+scheduler:
+  sche_config:
+    factor: 0.5
+    patience: 10
+  sche_name: ReduceLROnPlateau
+training:
+  SpeedAug: false
+  accumulate_grad_batches: 4
+  early_stop:
+    mode: min
+    monitor: val_loss
+    patience: 20
+    verbose: true
+  epochs: 500
+  gpus:
+  - 0
+  parallel: single
+  system: SeparationSystem

@@ -1,0 +1,52 @@
+{
+  "os": "Linux-5.11.0-43-generic-x86_64-with-glibc2.31",
+  "python": "3.10.18",
+  "startedAt": "2025-06-08T11:28:24.644603Z",
+  "args": [
+    "--conf_dir",
+    "configs/tiger-small.yml"
+  ],
+  "program": "/home/kaloori.shiva/Thesis/TIGER/audio_train.py",
+  "codePath": "audio_train.py",
+  "git": {
+    "remote": "https://github.com/JusperLee/TIGER.git",
+    "commit": "8bcf94fc50149b043534d99e5a5e24d04e4f919e"
+  },
+  "root": "/home/kaloori.shiva/Thesis/TIGER/Experiments/tensorboard_logs/TIGER-EchoSet",
+  "host": "hamilton",
+  "username": "kaloori.shiva",
+  "executable": "/home/kaloori.shiva/miniconda3/envs/env_shiva/bin/python",
+  "codePathLocal": "audio_train.py",
+  "cpu_count": 32,
+  "cpu_count_logical": 64,
+  "gpu": "Quadro RTX 5000",
+  "gpu_count": 2,
+  "disk": {
+    "/": {
+      "total": "101675311104",
+      "used": "62091075584"
+    }
+  },
+  "memory": {
+    "total": "134799630336"
+  },
+  "cpu": {
+    "count": 32,
+    "countLogical": 64
+  },
+  "gpu_nvidia": [
+    {
+      "name": "Quadro RTX 5000",
+      "memoryTotal": "17179869184",
+      "cudaCores": 3072,
+      "architecture": "Turing"
+    },
+    {
+      "name": "Quadro RTX 5000",
+      "memoryTotal": "17179869184",
+      "cudaCores": 3072,
+      "architecture": "Turing"
+    }
+  ],
+  "cudaVersion": "12.2"
+}

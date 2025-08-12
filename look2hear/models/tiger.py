@@ -511,16 +511,16 @@ class TIGER(BaseModel):
         self,
         out_channels=128,
         in_channels=512,
-        num_blocks=16,
+        num_blocks=4,
         upsampling_depth=4,
         att_n_head=4,
         att_hid_chan=4,
         att_kernel_size=8, 
         att_stride=1,
-        win=2048, 
-        stride=512,
+        win=640, 
+        stride=160,
         num_sources=2,
-        sample_rate=44100,
+        sample_rate=16000,
     ):
         super(TIGER, self).__init__(sample_rate=sample_rate)
         
@@ -534,17 +534,22 @@ class TIGER(BaseModel):
         self.eps = torch.finfo(torch.float32).eps
 
         # 0-1k (25 hop), 1k-2k (100 hop), 2k-4k (250 hop), 4k-8k (500 hop)
-        bandwidth_25 = int(np.floor(25 / (sample_rate / 2.) * self.enc_dim))
-        bandwidth_100 = int(np.floor(100 / (sample_rate / 2.) * self.enc_dim))
-        bandwidth_250 = int(np.floor(250 / (sample_rate / 2.) * self.enc_dim))
-        bandwidth_500 = int(np.floor(500 / (sample_rate / 2.) * self.enc_dim))
-        self.band_width = [bandwidth_25]*40
-        self.band_width += [bandwidth_100]*10
-        self.band_width += [bandwidth_250]*8
-        self.band_width += [bandwidth_500]*8
-        self.band_width.append(self.enc_dim - np.sum(self.band_width))
+        # bandwidth_25 = int(np.floor(25 / (sample_rate / 2.) * self.enc_dim))
+        # bandwidth_100 = int(np.floor(100 / (sample_rate / 2.) * self.enc_dim))
+        # bandwidth_250 = int(np.floor(250 / (sample_rate / 2.) * self.enc_dim))
+        # bandwidth_500 = int(np.floor(500 / (sample_rate / 2.) * self.enc_dim))
+        # self.band_width = [bandwidth_25]*40
+        # self.band_width += [bandwidth_100]*10
+        # self.band_width += [bandwidth_250]*8
+        # self.band_width += [bandwidth_500]*8
+        # self.band_width.append(self.enc_dim - np.sum(self.band_width))
+        bandwidth_25 = 1  # 25 Hz = 1 sample at 25 Hz resolution
+        bandwidth_100 = 4  # 100 Hz = 4 samples
+        bandwidth_250 = 10  # 250 Hz = 10 samples
+        bandwidth_500 = 20  # 500 Hz = 20 samples
+        self.band_width = [bandwidth_25]*40 + [bandwidth_100]*10 + [bandwidth_250]*8 + [bandwidth_500]*8 + [1]
         self.nband = len(self.band_width)
-        print(self.band_width)
+        print(print(f"Number of bands: {self.nband}, Bandwidths: {self.band_width}"))
         
         self.BN = nn.ModuleList([])
         for i in range(self.nband):
