@@ -30,7 +30,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import wandb
-wandb.login()
+# wandb.login()
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -44,7 +44,7 @@ def main(config):
         "Instantiating datamodule <{}>".format(config["datamodule"]["data_name"])
     )
     datamodule: object = getattr(look2hear.datas, config["datamodule"]["data_name"])(
-        **config["datamodule"]["data_config"]
+        **{**config["datamodule"]["data_config"],"segment": 3.0}
     )
     datamodule.setup()
 
@@ -60,26 +60,32 @@ def main(config):
     )
     # import pdb; pdb.set_trace()
     print_only("Instantiating Optimizer <{}>".format(config["optimizer"]["optim_name"]))
-    optimizer = make_optimizer(model.parameters(), **config["optimizer"])
-
-    # Define scheduler
-    scheduler = None
-    if config["scheduler"]["sche_name"]:
-        print_only(
-            "Instantiating Scheduler <{}>".format(config["scheduler"]["sche_name"])
-        )
-        if config["scheduler"]["sche_name"] != "DPTNetScheduler":
-            scheduler = getattr(torch.optim.lr_scheduler, config["scheduler"]["sche_name"])(
-                optimizer=optimizer, **config["scheduler"]["sche_config"]
-            )
-        else:
-            scheduler = {
-                "scheduler": getattr(look2hear.system.schedulers, config["scheduler"]["sche_name"])(
-                    optimizer, len(train_loader) // config["datamodule"]["data_config"]["batch_size"], 64
-                ),
-                "interval": "step",
-            }
-
+    # optimizer = make_optimizer(model.parameters(), **config["optimizer"])
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    # # Define scheduler
+    # scheduler = None
+    # if config["scheduler"]["sche_name"]:
+    #     print_only(
+    #         "Instantiating Scheduler <{}>".format(config["scheduler"]["sche_name"])
+    #     )
+    #     if config["scheduler"]["sche_name"] != "DPTNetScheduler":
+    #         scheduler = getattr(torch.optim.lr_scheduler, config["scheduler"]["sche_name"])(
+    #             optimizer=optimizer, **config["scheduler"]["sche_config"]
+    #         )
+    #     else:
+    #         scheduler = {
+    #             "scheduler": getattr(look2hear.system.schedulers, config["scheduler"]["sche_name"])(
+    #                 optimizer, len(train_loader) // config["datamodule"]["data_config"]["batch_size"], 64
+    #             ),
+    #             "interval": "step",
+    #         }
+    scheduler = ReduceLROnPlateau(
+        optimizer=optimizer,
+        mode="min",
+        factor=0.5,
+        patience=10,
+        verbose=True
+    )
     # Just after instantiating, save the args. Easy loading in the future.
     config["main_args"]["exp_dir"] = os.path.join(
         os.getcwd(), "Experiments", "checkpoint", config["exp"]["exp_name"]
@@ -134,9 +140,15 @@ def main(config):
     )
     callbacks.append(checkpoint)
 
-    if config["training"]["early_stop"]:
-        print_only("Instantiating EarlyStopping")
-        callbacks.append(EarlyStopping(**config["training"]["early_stop"]))
+    # if config["training"]["early_stop"]:
+    #     print_only("Instantiating EarlyStopping")
+    #     callbacks.append(EarlyStopping(**config["training"]["early_stop"]))
+    callbacks.append(EarlyStopping(
+        monitor="val_loss/dataloader_idx_0",
+        mode="min",
+        patience=20,
+        verbose=True
+    ))
     callbacks.append(MyRichProgressBar(theme=RichProgressBarTheme()))
 
     # Don't ask GPU if they are not available.
@@ -151,11 +163,12 @@ def main(config):
             name=config["exp"]["exp_name"], 
             save_dir=os.path.join(logger_dir, config["exp"]["exp_name"]), 
             project="Real-work-dataset",
-            # offline=True
+            offline=True
     )
 
     trainer = pl.Trainer(
-        max_epochs=config["training"]["epochs"],
+        # max_epochs=config["training"]["epochs"],
+        max_epochs=50,
         callbacks=callbacks,
         default_root_dir=exp_dir,
         devices=gpus,
@@ -165,6 +178,7 @@ def main(config):
         gradient_clip_val=5.0,
         logger=comet_logger,
         sync_batchnorm=True,
+        # log_every_n_steps=1000000,
         # precision="bf16-mixed",
         # num_sanity_val_steps=0,
         # sync_batchnorm=True,

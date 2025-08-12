@@ -52,29 +52,29 @@ def main(config):
         metricscolumn
     )
     # import pdb; pdb.set_trace()
-    config["train_conf"]["main_args"]["exp_dir"] = os.path.join(
-        os.getcwd(), "Experiments", "checkpoint", config["train_conf"]["exp"]["exp_name"]
+    config["main_args"]["exp_dir"] = os.path.join(
+        os.getcwd(), "Experiments", "checkpoint", config["exp"]["exp_name"]
     )
-    model_path = os.path.join(config["train_conf"]["main_args"]["exp_dir"], "best_model.pth")
+    model_path = os.path.join(config["main_args"]["exp_dir"], "best_model.pth")
     # import pdb; pdb.set_trace()
-    # conf["train_conf"]["masknet"].update({"n_src": 2})
-    model =  getattr(look2hear.models, config["train_conf"]["audionet"]["audionet_name"]).from_pretrain(
+    # conf["masknet"].update({"n_src": 2})
+    model =  getattr(look2hear.models, config["audionet"]["audionet_name"]).from_pretrained(
         model_path,
-        sample_rate=config["train_conf"]["datamodule"]["data_config"]["sample_rate"],
-        **config["train_conf"]["audionet"]["audionet_config"],
+        sample_rate=config["datamodule"]["data_config"]["sample_rate"],
+        **config["audionet"]["audionet_config"],
     )
-    if config["train_conf"]["training"]["gpus"]:
+    if config["training"]["gpus"]:
         device = "cuda"
         model.to(device)
     model_device = next(model.parameters()).device
-    datamodule: object = getattr(look2hear.datas, config["train_conf"]["datamodule"]["data_name"])(
-        **config["train_conf"]["datamodule"]["data_config"]
+    datamodule: object = getattr(look2hear.datas, config["datamodule"]["data_name"])(
+        **config["datamodule"]["data_config"]
     )
     datamodule.setup()
     _, _ , test_set = datamodule.make_sets
    
     # Randomly choose the indexes of sentences to save.
-    ex_save_dir = os.path.join(config["train_conf"]["main_args"]["exp_dir"], "results/")
+    ex_save_dir = os.path.join(config["main_args"]["exp_dir"], "results/")
     os.makedirs(ex_save_dir, exist_ok=True)
     metrics = MetricsTracker(
         save_file=os.path.join(ex_save_dir, "metrics.csv"))

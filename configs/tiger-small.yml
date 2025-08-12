@@ -5,7 +5,7 @@ audionet:
     out_channels: 128
     in_channels: 256
     num_blocks: 4
-    upsampling_depth: 5
+    upsampling_depth: 4 
     win: 640
     stride: 160
     num_sources: 2
@@ -28,7 +28,7 @@ loss:
 # Training config
 training:
   system: AudioLightningModule
-  gpus: [2,3,4,5,6,7,8,9]
+  gpus: [0,1]
   parallel: ddp
   epochs: 500
   early_stop:
